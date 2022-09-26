@@ -1,3 +1,3 @@
-# Smart-Car-Parking-using-UHF
+# Smart Car Parking using UHF
 
 ## Requirements
