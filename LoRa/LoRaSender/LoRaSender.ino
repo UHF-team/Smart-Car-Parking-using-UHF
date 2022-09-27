@@ -20,6 +20,17 @@ struct Package {
   byte tagCode[TAG_CODE_LENGTH];
 } package;
 
+//-------------- Send LoRa Message to Receiver ---------------//
+
+void sendLoRaMessage(byte* message) {
+  LoRa.beginPacket();
+  for (int i = 0; i < PAYLOAD_LENGTH; i++)
+  {
+    LoRa.print(char(message[i]));
+  }
+  LoRa.endPacket();
+}
+
 //---------------------- Setup Devices -----------------------//
 
 void setup() {
@@ -43,22 +54,22 @@ void setup() {
 //----------------------- Main Program -----------------------//
 
 void loop() {
+
+  // Save tagCode from M6E-NANO UART data
   while (!myTransfer.available());
   myTransfer.rxObj(package.tagCode);
 
-// ---------- Merge uhfId and tagCode to send LoRa ---------- //  
+  // Merge UHF device ID and tagCode to send LoRa message
   byte message[PAYLOAD_LENGTH];
   for(int i = 0; i < UHF_ID_LENGTH; i+=1){
     message[i] = package.uhfId[i];
   }
-
   for(int i = 0; i < TAG_CODE_LENGTH; i+=1){
     message[i+UHF_ID_LENGTH] = package.tagCode[i];
   }
-  
-  sendMessage(message);
+  sendLoRaMessage(message);
 
-// ---------- Check whether the sended package is error ---------- //  
+  // Check if sended package is error
   int nackCounter = 0;
   while (!receiveAck(message) && nackCounter < 5) {
     Serial.println(" - refused ");
@@ -69,12 +80,12 @@ void loop() {
     Serial.print(nackCounter);
     Serial.print(" - ");
     delay(1000);
-    sendMessage(message);
+    sendLoRaMessage(message);
   }
   
   if (nackCounter >= 5) {
     Serial.println("");
-    Serial.println("--------------- MESSAGE LOST ---------------------");
+    Serial.println("#----- MESSAGE LOST -----#");
     delay(100);
   } else {
     Serial.println(" - Acknowledged ");
@@ -84,6 +95,8 @@ void loop() {
   
   delay(100);
 }
+
+//--------------- Receive ACK checksum message ---------------//
 
 bool receiveAck(byte* message) {
   String ack;
@@ -114,22 +127,4 @@ bool receiveAck(byte* message) {
     }
   }
   return stat;
-}
-
-void sendMessage(byte* message) {
-  Serial.print("[");
-  for(int i = 0; i < PAYLOAD_LENGTH; i++)
-  {
-    Serial.print(" 0x");
-    if(message[i] < 0x10) Serial.print("0");
-    Serial.print(message[i], HEX);
-  }
-  Serial.println(" ]");
-  
-  LoRa.beginPacket();
-  for (int i = 0; i < PAYLOAD_LENGTH; i++)
-  {
-    LoRa.print(char(message[i]));
-  }
-  LoRa.endPacket();
 }

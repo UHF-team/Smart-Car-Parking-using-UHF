@@ -35,7 +35,7 @@ void sendUARTMessage(byte *message) {
   myTransfer.sendData(PAYLOAD_LENGTH);
 }
 
-//-------------- Send LoRa Message to Receiver ---------------//
+//------------------- Receive LoRa Message -------------------//
 
 void receiveMessage() {
   int packetSize = LoRa.parsePacket();
