@@ -7,21 +7,19 @@ RFID nano;
 SerialTransfer myTransfer;
 #define PRMDEBUG 0
 #define WAIT_AFTER_POWER_ON 2000
-
 #define SERIAL 9600
 #define RFID_SERIAL_SPEED 115200
-
 #define RFID_Region REGION_NORTHAMERICA // Valid options are :  REGION_INDIA, REGION_JAPAN, REGION_CHINA, REGION_EUROPE, REGION_KOREA, 
                                         //                      REGION_AUSTRALIA, REGION_NEWZEALAND, REGION_NORTHAMERICA
 #define RFID_POWER 2700 // 5.00 dBm. Max Read TX Power: 27.00 dBm and may cause temperature-limit throttling and USB port to brown out.
-
 #define NANO_PARAMETER 0
+#define TAG_CODE_LENGTH 12
 
 //------------------- Define data package --------------------//
 
 struct Package {
-  byte tagCode[12]; // Example for a tag code {0x34, 0x16, 0x21, 0x4B, 0x88, 0xF6, 0xBB, 0x00, 0x02, 0x66, 0x24, 0x03};
-} package;
+  byte tagCode[TAG_CODE_LENGTH]; // Example for a tag code {0x34, 0x16, 0x21, 0x4B, 0x88, 0xF6, 0xBB, 0x00, 0x02, 0x66, 0x24, 0x03};
+} package, lastPackage;
 
 //------------ Connect and setup M6e Nano Reader -------------//
 
@@ -98,6 +96,15 @@ void setup() {
 
 //----------------------- Main Program -----------------------//
 
+bool isTheSame(Package package1, Package package2) {
+  for (int i = 0; i < TAG_CODE_LENGTH; i++){
+    if (package1.tagCode[i] != package2.tagCode[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void loop() {
   if (nano.check() == true) //Check to see if any new data has come in from module
   {
@@ -107,9 +114,18 @@ void loop() {
       Serial.println(F("Scanning"));
     }
     else if (responseType == RESPONSE_IS_TAGFOUND) {
-      // Send data package via UART
-      myTransfer.sendDatum(package.tagCode);
-      delay(2500);   
+      
+      // Send data package via UART if not a previous TAG
+      for (byte x = 0 ; x < tagEPCBytes ; x++) {
+            package.tagCode[i] = nano.msg[31 + x];
+      }
+      
+      if (isTheSame(package, lastPackage)) {
+        myTransfer.sendDatum(package.tagCode);
+        delay(2500); 
+      }
+      Serial.println("Previous TAG!");
+        
 
       // Parameter for debug, set NANO_PARAMETER to value 1 to active
       #ifdef NANO_PARAMETER
