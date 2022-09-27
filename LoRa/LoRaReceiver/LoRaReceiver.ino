@@ -2,16 +2,15 @@
 #include <LoRa.h>
 #include "SerialTransfer.h"
 
-// -------------------- Configue Parameters -------------------- //
+//------------------- Configue Parameters --------------------//                                                              
 
-const long LoRa_freq = 915E6;
-const int LoRa_SF = 7;
-const long LoRa_bw = 125E3;
-int counter, lastCounter;
-SerialTransfer myTransfer;
 #define PAYLOAD_LENGTH 19
+const long LoRa_freq = 915E6;
+const int LoRa_SF = 9;
+const long LoRa_bw = 125E3;
+SerialTransfer myTransfer;
 
-// -------------------- Send back LoRa ACK packet -------------------- //
+//---------------- Send back LoRa ACK packet -----------------//
 
 void sendACK(byte *message) {
   int check = 0;
@@ -23,23 +22,20 @@ void sendACK(byte *message) {
   LoRa.print(String(check));
   LoRa.endPacket();
   
-//  Serial.print(message);
   Serial.print(" ACK Sent: ");
   Serial.println(check);
 }
 
-// -------------------- Send Message to PI via UART -------------------- //
+//--------------- Send Message to PI via UART ----------------//
 
 void sendUARTMessage(byte *message) {
-//  message = "UHF0001123456789123";
-
   for (int i = 0; i <= PAYLOAD_LENGTH; i++)
     myTransfer.packet.txBuff[i]= message[i];
   
   myTransfer.sendData(PAYLOAD_LENGTH);
 }
 
-// -------------------- Send LoRa Message to Receiver -------------------- //
+//-------------- Send LoRa Message to Receiver ---------------//
 
 void receiveMessage() {
   int packetSize = LoRa.parsePacket();
@@ -57,7 +53,7 @@ void receiveMessage() {
     }
 }
 
-// -------------------- Setup Devices -------------------- //
+//---------------------- Setup Devices -----------------------//
 
 void setup() {
 
@@ -77,7 +73,7 @@ void setup() {
   Serial.println("- LoRa ready!");
 }
 
-// -------------------- Main Program -------------------- //
+//----------------------- Main Program -----------------------//
 
 void loop() {
   receiveMessage();
