@@ -1,6 +1,8 @@
 #include <SparkFun_UHF_RFID_Reader.h> // Library for controlling the M6E Nano module
 #include "SerialTransfer.h"
+
 // ---------- Configuration parameters ---------- //
+
 RFID nano;
 SerialTransfer myTransfer;
 #define PRMDEBUG 0
@@ -13,7 +15,9 @@ SerialTransfer myTransfer;
 #define RFID_POWER 2700 // 5.00 dBm. Higher values may caues USB port to brown out. Max Read TX Power is 27.00 dBm and may cause temperature-limit throttling
 
 #define NANO_PARAMETER 0
+
 // ---------- Define package data ---------- //
+
 struct Package {
   byte tagCode[12]; // Example for a tag code {0x34, 0x16, 0x21, 0x4B, 0x88, 0xF6, 0xBB, 0x00, 0x02, 0x66, 0x24, 0x03};
 } package;

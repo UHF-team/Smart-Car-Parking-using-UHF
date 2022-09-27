@@ -2,40 +2,46 @@
 #include <SPI.h>
 #include "SerialTransfer.h"
 
+//------------------- Configue Parameters --------------------//
+
 #define UHF_ID_LENGTH 7
 #define TAG_CODE_LENGTH 12
 #define PAYLOAD_LENGTH 19
 
-// ---------- Configuration parameters ---------- //
 SerialTransfer myTransfer;
-const long freq = 915E6;
-const int SF = 9;
-const long bw = 125E3;
+const long LoRa_freq = 915E6;
+const int LoRa_SF = 9;
+const long LoRa_bw = 125E3;
 
-// ---------- Define package data ---------- //
+//------------------- Define package data --------------------//
+
 struct Package {
   char uhfId[UHF_ID_LENGTH] = {'a', 'b', 'c', '1', '2', '3', '4'};
   byte tagCode[TAG_CODE_LENGTH];
-  //uint8_t presentTime[3];
 } package;
 
-// ---------- Setup devices ---------- //
+//---------------------- Setup Devices -----------------------//
+
 void setup() {
+  
+  // UART setup
   Serial.begin(9600);
   while (!Serial);
   myTransfer.begin(Serial);
   Serial.println("LoRa Sender");
 
-  if (!LoRa.begin(freq)) {
+  // LoRa setup
+  if (!LoRa.begin(LoRa_freq)) {
     Serial.println("Starting LoRa failed!");
     while (1);
   }
-  LoRa.setSpreadingFactor(SF);
-  // LoRa.setSignalBandwidth(bw);
+  LoRa.setSpreadingFactor(LoRa_SF);
+  LoRa.setSignalBandwidth(LoRa_bw);
   Serial.println("- LoRa ready!");
 }
 
-// ---------- Main program ---------- //
+//----------------------- Main Program -----------------------//
+
 void loop() {
   while (!myTransfer.available());
   myTransfer.rxObj(package.tagCode);
