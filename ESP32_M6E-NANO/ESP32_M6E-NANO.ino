@@ -95,16 +95,6 @@ void setup() {
 }
 
 //----------------------- Main Program -----------------------//
-
-bool isTheSame(Package package1, Package package2) {
-  for (int i = 0; i < TAG_CODE_LENGTH; i++){
-    if (package1.tagCode[i] != package2.tagCode[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
 void loop() {
   if (nano.check() == true) //Check to see if any new data has come in from module
   {
@@ -171,4 +161,14 @@ void loop() {
       Serial.print("Unknown error");
     }
   }
+}
+
+
+bool isTheSame(Package package1, Package package2) {
+  for (int i = 0; i < TAG_CODE_LENGTH; i++){
+    if (package1.tagCode[i] != package2.tagCode[i]) {
+      return false;
+    }
+  }
+  return true;
 }
