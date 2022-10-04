@@ -43,6 +43,8 @@ def getSerialData(SERIAL_PORT):
         else:
             hex_String = str(hex(link.rxBuff[index]))
             temp_arr = hex_String.split("0x")
+            if (hex(link.rxBuff[index]) <= 0x10):
+                temp_arr[1] = '0' + temp_arr
             response += temp_arr[1]
     
     print('Response received: ' + response)
