@@ -26,6 +26,11 @@ void sendLoRaMessage(byte* message) {
   LoRa.beginPacket();
   for (int i = 0; i < PAYLOAD_LENGTH; i++)
   {
+    Serial.print("0x");
+    if(message[i] < 0x10) Serial.print("0");
+    Serial.print(message[i], HEX);
+    Serial.print(" ");
+    
     LoRa.print(char(message[i]));
   }
   LoRa.endPacket();
