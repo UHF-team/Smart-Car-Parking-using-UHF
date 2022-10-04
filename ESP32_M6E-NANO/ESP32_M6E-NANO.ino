@@ -116,13 +116,15 @@ void loop() {
     else if (responseType == RESPONSE_IS_TAGFOUND) {
       
       // Send data package via UART if not a previous TAG
-      for (byte x = 0 ; x < tagEPCBytes ; x++) {
-            package.tagCode[i] = nano.msg[31 + x];
+      for (byte x = 0 ; x < TAG_CODE_LENGTH ; x++) {
+            package.tagCode[x] = nano.msg[31 + x];
       }
       
-      if (isTheSame(package, lastPackage)) {
+      if (!isTheSame(package, lastPackage)) {
         myTransfer.sendDatum(package.tagCode);
-        delay(2500); 
+        for (byte x = 0 ; x < TAG_CODE_LENGTH ; x++) {
+            lastPackage.tagCode[x] = package.tagCode[x];
+      }
       }
       Serial.println("Previous TAG!");
         
