@@ -9,16 +9,15 @@ SerialTransfer myTransfer;
 #define WAIT_AFTER_POWER_ON 2000
 #define SERIAL 9600
 #define RFID_SERIAL_SPEED 115200
-#define RFID_Region REGION_NORTHAMERICA // Valid options are :  REGION_INDIA, REGION_JAPAN, REGION_CHINA, REGION_EUROPE, REGION_KOREA, 
-                                        //                      REGION_AUSTRALIA, REGION_NEWZEALAND, REGION_NORTHAMERICA
-#define RFID_POWER 2700 // 5.00 dBm. Max Read TX Power: 27.00 dBm and may cause temperature-limit throttling and USB port to brown out.
+#define RFID_Region REGION_NORTHAMERICA // Valid options are :  REGION_INDIA, REGION_JAPAN, REGION_CHINA, REGION_EUROPE, REGION_KOREA, REGION_AUSTRALIA, REGION_NEWZEALAND, REGION_NORTHAMERICA
+#define RFID_POWER 2700                 // 5.00 dBm. Max Read TX Power: 27.00 dBm and may cause temperature-limit throttling and USB port to brown out.
 #define NANO_PARAMETER 0
 #define TAG_CODE_LENGTH 12
 
 //------------------- Define data package --------------------//
 
 struct Package {
-  byte tagCode[TAG_CODE_LENGTH]; // Example for a tag code {0x34, 0x16, 0x21, 0x4B, 0x88, 0xF6, 0xBB, 0x00, 0x02, 0x66, 0x24, 0x03};
+  byte tagCode[TAG_CODE_LENGTH];        // Example for a tag code {0x34, 0x16, 0x21, 0x4B, 0x88, 0xF6, 0xBB, 0x00, 0x02, 0x66, 0x24, 0x03};
 } package, lastPackage;
 
 //------------ Connect and setup M6e Nano Reader -------------//
@@ -52,7 +51,7 @@ int setupNano(long baudRate)
     }
     else
     {
-      return(1); // Responded, but have to be set in the right mode
+      return(1);    // Responded, but have to be set in the right mode
     }
 
     val1++;
@@ -69,23 +68,22 @@ void setup_UHF() {
     while (1); //Freeze!
   }
   
-  nano.setRegion(RFID_Region); //Set to Europe
-  nano.setTagProtocol();       // Set protocol to GEN2
-  nano.setAntennaPort();       // Set TX/RX antenna ports to 1
+  nano.setRegion(RFID_Region);    // Set to Europe
+  nano.setTagProtocol();          // Set protocol to GEN2
+  nano.setAntennaPort();          // Set TX/RX antenna ports to 1
   nano.setReadPower(RFID_POWER);
-  nano.startReading(); //Begin scanning for tags
+  nano.startReading();            // Begin scanning for tags
 }
 
 //---------------------- Setup Devices -----------------------//
 
 void setup() {
-  // If M6E Nano is powered with USB power, give the Nano time to settle.
-  delay(WAIT_AFTER_POWER_ON);
+  delay(WAIT_AFTER_POWER_ON);     // If M6E Nano is powered with USB power, give the Nano time to settle.
 
   // Serial 1 setup
   Serial.begin(SERIAL);
   myTransfer.begin(Serial);
-  while (!Serial); //Wait for the serial port to come online
+  while (!Serial);                // Wait for the serial port to come online
   Serial.println("");
   
   // Nano setup
@@ -96,16 +94,15 @@ void setup() {
 
 //----------------------- Main Program -----------------------//
 void loop() {
-  if (nano.check() == true) //Check to see if any new data has come in from module
+  if (nano.check() == true)                           //Check to see if any new data has come in from module
   {
-    byte responseType = nano.parseResponse(); //Break response into tag ID, RSSI, frequency, and timestamp
+    byte responseType = nano.parseResponse();         //Break response into tag ID, RSSI, frequency, and timestamp
 
     if (responseType == RESPONSE_IS_KEEPALIVE) {
       Serial.println(F("Scanning"));
     }
-    else if (responseType == RESPONSE_IS_TAGFOUND) {
+    else if (responseType == RESPONSE_IS_TAGFOUND) {  // Send data package via UART if not a previous TAG
       
-      // Send data package via UART if not a previous TAG
       for (byte x = 0 ; x < TAG_CODE_LENGTH ; x++) {
             package.tagCode[x] = nano.msg[31 + x];
       }
@@ -114,18 +111,15 @@ void loop() {
         myTransfer.sendDatum(package.tagCode);
         for (byte x = 0 ; x < TAG_CODE_LENGTH ; x++) {
             lastPackage.tagCode[x] = package.tagCode[x];
-      }
+        }
       }
       Serial.println("Previous TAG!");
-        
-
-      // Parameter for debug, set NANO_PARAMETER to value 1 to active
-      #ifdef NANO_PARAMETER
-            //If we have a full record we can pull out the fun bits
-            int rssi = nano.getTagRSSI(); //Get the RSSI for this tag read
-            long freq = nano.getTagFreq(); //Get the frequency this tag was detected at
-            long timeStamp = nano.getTagTimestamp(); //Get the time this was read, (ms) since last keep-alive message
-            byte tagEPCBytes = nano.getTagEPCBytes(); //Get the number of bytes of EPC from response
+      
+      #ifdef NANO_PARAMETER                             // Parameter for debug, set NANO_PARAMETER to value 1 to active
+            int rssi = nano.getTagRSSI();               //Get the RSSI for this tag read
+            long freq = nano.getTagFreq();              //Get the frequency this tag was detected at
+            long timeStamp = nano.getTagTimestamp();    //Get the time this was read, (ms) since last keep-alive message
+            byte tagEPCBytes = nano.getTagEPCBytes();   //Get the number of bytes of EPC from response
             Serial.print(F(" rssi["));
             Serial.print(rssi);
             Serial.print(F("]"));
@@ -138,11 +132,11 @@ void loop() {
             Serial.print(timeStamp);
             Serial.print(F("]"));
       
-            //Print EPC bytes, this is a subsection of bytes from the response/msg array and also is the only code needed to send
+            //Print EPC bytes, this is a part of bytes from the response/msg array and also is the only code needed to send
             Serial.print(F(" epc["));
             for (byte x = 0 ; x < tagEPCBytes ; x++)
             {
-              if (nano.msg[31 + x] < 0x10) Serial.print(F("0")); //Pretty print
+              if (nano.msg[31 + x] < 0x10) Serial.print(F("0"));  //Pretty print
               Serial.print(nano.msg[31 + x], HEX);
               Serial.print(F(" "));
             }
@@ -153,8 +147,7 @@ void loop() {
 
     }
 
-    // Check CRC error
-    else if (responseType == ERROR_CORRUPT_RESPONSE) {
+    else if (responseType == ERROR_CORRUPT_RESPONSE) {   // Check CRC error
       Serial.println("Bad CRC");
     }
     else {
@@ -163,7 +156,7 @@ void loop() {
   }
 }
 
-
+//----------------------- Other Functions -----------------------//
 bool isTheSame(Package package1, Package package2) {
   for (int i = 0; i < TAG_CODE_LENGTH; i++){
     if (package1.tagCode[i] != package2.tagCode[i]) {
