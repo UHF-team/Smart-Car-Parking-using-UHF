@@ -35,7 +35,6 @@
 ### Install Required Libraries
 * Access https://github.com/sandeepmistry/arduino-LoRa#using-the-arduino-ide-library-manager to download and install LoRa library
 * Access https://github.com/sparkfun/SparkFun_Simultaneous_RFID_Tag_Reader_Library to download and install UHF Reader library
-* Access https://github.com/sparkfun/SparkFun_Simultaneous_RFID_Tag_Reader_Library to download and install SerialTransfer library
 * Access https://github.com/PowerBroker2/pySerialTransfer to download and install SerialTransfer library
 ## Documentation
 * [Official Document](https://github.com/UHF-team/Smart-Car-Parking-using-UHF/blob/main/Doc/Smart_Car_Parking_System_Document.pdf) - Entire information of smart car parking system.
