@@ -6,13 +6,14 @@
 RFID nano;
 SerialTransfer myTransfer;
 #define PRMDEBUG 0
-#define WAIT_AFTER_POWER_ON 2000
+#define WAIT_AFTER_POWER_ON 3000
 #define SERIAL 9600
 #define RFID_SERIAL_SPEED 115200
 #define RFID_Region REGION_NORTHAMERICA // Valid options are :  REGION_INDIA, REGION_JAPAN, REGION_CHINA, REGION_EUROPE, REGION_KOREA, REGION_AUSTRALIA, REGION_NEWZEALAND, REGION_NORTHAMERICA
-#define RFID_POWER 2700                 // 5.00 dBm. Max Read TX Power: 27.00 dBm and may cause temperature-limit throttling and USB port to brown out.
+#define RFID_POWER 500                 // 5.00 dBm. Max Read TX Power: 27.00 dBm and may cause temperature-limit throttling and USB port to brown out.
 #define NANO_PARAMETER 0
 #define TAG_CODE_LENGTH 12
+#define En_Pin 18
 
 //------------------- Define data package --------------------//
 
@@ -22,13 +23,22 @@ struct Package {
 
 //------------ Connect and setup M6e Nano Reader -------------//
 
+void resetNano()
+{ 
+  pinMode(En_Pin, OUTPUT);
+  digitalWrite(En_Pin, LOW);
+  delay(WAIT_AFTER_POWER_ON);     // If M6E Nano is powered with USB power, give the Nano time to settle.
+  digitalWrite(En_Pin, HIGH);
+}
+
+
 int setupNano(long baudRate)
 {
+  resetNano();
   if (PRMDEBUG == 3) nano.enableDebugging(Serial);
 
   nano.begin(Serial2); 
   Serial2.begin(baudRate);
-
   // Try to connect 50 times
   uint8_t val1 = 0;
   while(val1 < 50)
@@ -51,6 +61,7 @@ int setupNano(long baudRate)
     }
     else
     {
+      //nano.eraseFlash();
       return(1);    // Responded, but have to be set in the right mode
     }
 
@@ -77,9 +88,7 @@ void setup_UHF() {
 
 //---------------------- Setup Devices -----------------------//
 
-void setup() {
-  delay(WAIT_AFTER_POWER_ON);     // If M6E Nano is powered with USB power, give the Nano time to settle.
-
+void setup() {  
   // Serial 1 setup
   Serial.begin(SERIAL);
   myTransfer.begin(Serial);
